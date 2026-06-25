@@ -1,0 +1,20 @@
+version: 2
+
+sources:
+  - name: raw_databricks
+    description: "Schema no Amazon Redshift que recebe dados Silver exportados do Databricks."
+    database: dev
+    schema: raw_databricks
+    tables:
+      - name: silver_logs_enriquecidos
+        description: "Tabela Silver enriquecida criada no Databricks e carregada no Redshift via S3/COPY."
+        columns:
+          - name: user_id
+            tests:
+              - not_null
+          - name: session_id
+            tests:
+              - not_null
+          - name: page_visited
+            tests:
+              - not_null

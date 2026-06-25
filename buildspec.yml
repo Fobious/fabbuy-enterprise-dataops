@@ -1,0 +1,58 @@
+version: 0.2
+
+env:
+  variables:
+    DBT_PROJECT_DIR: "dbt"
+    DBT_PROFILE_NAME: "fabbuy_tp4"
+    DBT_TARGET: "dev"
+    REDSHIFT_PORT: "5439"
+    REDSHIFT_DB: "dev"
+    DBT_SCHEMA: "dbt_tp4_fabbuy"
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.11
+    commands:
+      - echo "Instalando dependencias do dbt..."
+      - python -m pip install --upgrade pip
+      - pip install dbt-redshift
+
+  pre_build:
+    commands:
+      - echo "Criando profiles.yml dinamicamente para conexao com Redshift..."
+      - mkdir -p ~/.dbt
+      - |
+        cat > ~/.dbt/profiles.yml << EOF
+        fabbuy_tp4:
+          target: dev
+          outputs:
+            dev:
+              type: redshift
+              host: ${REDSHIFT_HOST}
+              user: ${REDSHIFT_USER}
+              password: ${REDSHIFT_PASSWORD}
+              port: ${REDSHIFT_PORT}
+              dbname: ${REDSHIFT_DB}
+              schema: ${DBT_SCHEMA}
+              threads: 4
+              sslmode: prefer
+        EOF
+      - echo "Validando configuracao do dbt..."
+      - cd ${DBT_PROJECT_DIR}
+      - dbt debug
+
+  build:
+    commands:
+      - echo "Executando modelos dbt do TP4..."
+      - dbt run --select stg_silver_logs_enriquecidos gold_jornada_cliente_dbt
+      - echo "Executando testes de qualidade dbt..."
+      - dbt test --select source:raw_databricks
+
+  post_build:
+    commands:
+      - echo "Pipeline CI/CD dbt finalizado com sucesso."
+
+artifacts:
+  files:
+    - "**/*"

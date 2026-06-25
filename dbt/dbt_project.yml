@@ -1,0 +1,14 @@
+name: 'fabbuy_tp4'
+version: '1.0.0'
+config-version: 2
+
+profile: 'fabbuy_tp4'
+
+model-paths: ["models"]
+
+models:
+  fabbuy_tp4:
+    staging:
+      +materialized: view
+    marts:
+      +materialized: table
