@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   variables:
-    DBT_PROJECT_DIR: "dbt"
+    PROJECT_SUBDIR: "dbt"
     DBT_PROFILE_NAME: "fabbuy_tp4"
     DBT_TARGET: "dev"
     REDSHIFT_PORT: "5439"
@@ -38,16 +38,17 @@ phases:
               threads: 4
               sslmode: prefer
         EOF
+      - echo "Entrando na pasta do projeto dbt..."
+      - cd ${PROJECT_SUBDIR}
       - echo "Validando configuracao do dbt..."
-      - cd ${DBT_PROJECT_DIR}
-      - dbt debug
+      - dbt debug --profiles-dir ~/.dbt --project-dir .
 
   build:
     commands:
       - echo "Executando modelos dbt do TP4..."
-      - dbt run --select stg_silver_logs_enriquecidos gold_jornada_cliente_dbt
+      - dbt run --profiles-dir ~/.dbt --project-dir . --select stg_silver_logs_enriquecidos gold_jornada_cliente_dbt
       - echo "Executando testes de qualidade dbt..."
-      - dbt test --select source:raw_databricks
+      - dbt test --profiles-dir ~/.dbt --project-dir . --select source:raw_databricks
 
   post_build:
     commands:
