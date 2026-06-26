@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   variables:
-    DBT_PROJECT_DIR: "dbt"
+    DBT_PROJECT_DIR: "."
     DBT_PROFILE_NAME: "fabbuy_tp4"
     DBT_TARGET: "dev"
     REDSHIFT_PORT: "5439"
