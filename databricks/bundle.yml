@@ -1,0 +1,54 @@
+bundle:
+  name: fabbuy_tp4_databricks_bundle
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/dev
+
+  prod:
+    mode: production
+    workspace:
+      root_path: /Workspace/Shared/FabBuy/production/${bundle.name}
+
+resources:
+  pipelines:
+    tp3_dlt_fabbuy_silver_prod:
+      name: TP4_PROD_DLT_FabBuy_Silver
+      catalog: fabbuy_catalog
+      schema: silver
+      serverless: true
+      development: false
+      continuous: false
+      libraries:
+        - file:
+            path: ./dlt/TP3_01_DLT_Silver_FabBuy.py
+
+  jobs:
+    tp4_workflow_fabbuy_prod:
+      name: TP4_PROD_Workflow_FabBuy
+      tasks:
+        - task_key: Executar_DLT
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.tp3_dlt_fabbuy_silver_prod.id}
+
+        - task_key: Executar_Notebook_Validacao
+          depends_on:
+            - task_key: Executar_DLT
+          notebook_task:
+            notebook_path: /Workspace/Users/fabricio.dsantos@al.infnet.edu.br/TP3_PB_06_2026/TP3_02_Validacao_Silver
+
+        - task_key: Otimizar_Tabela_Gold
+          depends_on:
+            - task_key: Executar_Notebook_Validacao
+          notebook_task:
+            notebook_path: /Workspace/Users/fabricio.dsantos@al.infnet.edu.br/TP3_PB_06_2026/TP3_03_Otimizar_Tabela_Gold
+
+        - task_key: Enviar_Alerta_Falha
+          depends_on:
+            - task_key: Executar_DLT
+          run_if: AT_LEAST_ONE_FAILED
+          notebook_task:
+            notebook_path: /Workspace/Users/fabricio.dsantos@al.infnet.edu.br/TP3_PB_06_2026/TP3_04_Alerta_Falha_DLT
