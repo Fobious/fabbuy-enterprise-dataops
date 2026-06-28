@@ -46,7 +46,7 @@ phases:
   build:
     commands:
       - echo "Executando modelos dbt do TP4..."
-      - dbt run --profiles-dir ~/.dbt --project-dir . --select stg_silver_logs_enriquecidos gold_jornada_cliente_dbt
+      - dbt run --profiles-dir ~/.dbt --project-dir . --select stg_silver_logs_enriquecidos gold_jornada_cliente_dbt features_ml
       - echo "Executando testes de qualidade dbt..."
       - dbt test --profiles-dir ~/.dbt --project-dir . --select source:raw_databricks
 
